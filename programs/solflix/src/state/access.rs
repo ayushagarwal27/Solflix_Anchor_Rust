@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-#[derive(account)]
+#[account]
 #[derive(InitSpace)]
 pub struct Access {
     pub consumer: Pubkey,
