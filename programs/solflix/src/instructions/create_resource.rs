@@ -18,7 +18,7 @@ pub struct CreateResource<'info> {
 }
 
 impl<'info> CreateResource<'info> {
-    pub fn create_resource_account(&mut self, price: u64, resource_key: String, num_of_days: u32, bumps: &CreateResourceBumps) -> Result<()> {
+    pub fn create_resource(&mut self, price: u64, resource_key: String, num_of_days: u32, bumps: &CreateResourceBumps) -> Result<()> {
         self.create_account.set_inner(Create {
             price,
             creator: self.creator.key(),

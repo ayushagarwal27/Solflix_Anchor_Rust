@@ -4,7 +4,8 @@ use anchor_lang::prelude::*;
 #[derive(InitSpace)]
 pub struct Access {
     pub consumer: Pubkey,
-    pub time: u64,
+    pub purchase_time: i64,
+    pub num_of_days_valid: u32,
     pub bump: u8,
     #[max_len(50)]
     pub resource_key: String,
