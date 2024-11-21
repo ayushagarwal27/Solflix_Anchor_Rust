@@ -14,12 +14,12 @@ pub struct AccessResource<'info> {
         init,
         payer = accessor,
         space = 8 + Access::INIT_SPACE,
-        seeds = [b"access", resource_account.resource_key.as_str().as_bytes(), accessor.key().as_ref(), resource_account.num_of_days.to_le_bytes().as_ref()],
+        seeds = [b"access", resource_account.seed.as_str().as_bytes(), accessor.key().as_ref()],
         bump
     )]
     pub access_account: Account<'info, Access>,
     #[account(
-        seeds = [b"create", resource_account.creator.key().as_ref(), resource_account.resource_key.as_str().as_bytes(), resource_account.num_of_days.to_le_bytes().as_ref()],
+        seeds = [b"create", resource_account.creator.key().as_ref(), resource_account.seed.as_str().as_bytes()],
         bump = resource_account.bump,
     )]
     pub resource_account: Account<'info, Create>,

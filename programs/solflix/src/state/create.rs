@@ -7,6 +7,8 @@ pub struct Create {
     pub price: u64,
     pub num_of_days: u32,
     pub bump: u8,
+    #[max_len(31)]
+    pub seed: String,
     #[max_len(50)]
     pub resource_key: String,
 }
