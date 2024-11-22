@@ -20,4 +20,9 @@ pub mod solflix {
         ctx.accounts.create_resource(price, num_of_days, resource_key, seed, &ctx.bumps)?;
         Ok(())
     }
+
+    pub fn access_resource(ctx: Context<AccessResource>) -> Result<()> {
+        ctx.accounts.access_resource(&ctx.bumps)?;
+        Ok(())
+    }
 }

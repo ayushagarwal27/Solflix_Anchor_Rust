@@ -3,7 +3,6 @@ import { Program } from "@coral-xyz/anchor";
 import { Keypair } from "@solana/web3.js";
 import { Solflix } from "../target/types/solflix";
 import { expect } from "chai";
-import { randomBytes } from "crypto";
 
 describe("solflix", () => {
   // Configure the client to use the local cluster.
@@ -13,6 +12,7 @@ describe("solflix", () => {
 
   const program = anchor.workspace.Solflix as Program<Solflix>;
   const creator = Keypair.generate();
+  const consumer = Keypair.generate();
   const resourceKey = "8aa6b899-a671-4583-99bf-4df30a1a4b67";
   const config = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("config")],
@@ -21,6 +21,7 @@ describe("solflix", () => {
 
   before("prepare", async () => {
     await airdrop(connection, creator.publicKey);
+    await airdrop(connection, consumer.publicKey);
     console.log("airdropped");
   });
 
@@ -43,28 +44,24 @@ describe("solflix", () => {
   });
 
   it("Creates a Resource", async () => {
-    // Add your test here.
-    const hash = await sha256(
-      "create" + resourceKey + 2 + creator.publicKey.toString()
+    let resourceHash = await sha256(
+      resourceKey + 2 + creator.publicKey.toString()
     );
-    // console.log(hash.length);
+
     const resource = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("create"),
         creator.publicKey.toBytes(),
-        Buffer.from(hash.substring(0, 31)),
+        Buffer.from(resourceHash.substring(0, 31)),
       ],
       program.programId
     )[0];
-
-    console.log(hash.substring(0, 31));
-
     const tx = await program.methods
       .createResource(
         new anchor.BN(0.5 * anchor.web3.LAMPORTS_PER_SOL),
         2,
         resourceKey,
-        hash.substring(0, 31)
+        resourceHash.substring(0, 31)
       )
       .accountsPartial({
         creator: creator.publicKey,
@@ -80,6 +77,64 @@ describe("solflix", () => {
     expect(onChainResource.price.toNumber()).equal(
       0.5 * anchor.web3.LAMPORTS_PER_SOL
     );
+  });
+
+  it("Access the resource", async () => {
+    let resourceHash = await sha256(
+      resourceKey + 2 + creator.publicKey.toString()
+    );
+
+    const resource = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("create"),
+        creator.publicKey.toBytes(),
+        Buffer.from(resourceHash.substring(0, 31)),
+      ],
+      program.programId
+    )[0];
+    const accessAccount = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("access"),
+        Buffer.from(resourceHash.substring(0, 31)),
+        consumer.publicKey.toBytes(),
+      ],
+      program.programId
+    )[0];
+    const preBalance = await connection.getBalance(creator.publicKey);
+    const preBalanceAdmin = await connection.getBalance(
+      provider.wallet.publicKey
+    );
+    console.log("Pre:");
+    console.log(preBalance / anchor.web3.LAMPORTS_PER_SOL);
+    console.log(preBalanceAdmin / anchor.web3.LAMPORTS_PER_SOL);
+
+    const tx = await program.methods
+      .accessResource()
+      .accountsPartial({
+        accessor: consumer.publicKey,
+        maker: creator.publicKey,
+        admin: provider.wallet.publicKey,
+        resourceAccount: resource,
+        config,
+        accessAccount,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .signers([consumer])
+      .rpc();
+    console.log("Your transaction signature", tx);
+    console.log("Post: ");
+    const postBalance = await connection.getBalance(creator.publicKey);
+    const postBalanceAdmin = await connection.getBalance(
+      provider.wallet.publicKey
+    );
+    console.log(postBalance / anchor.web3.LAMPORTS_PER_SOL);
+    console.log(postBalanceAdmin / anchor.web3.LAMPORTS_PER_SOL);
+
+    const onChainAccessAccount = await program.account.access.fetch(
+      accessAccount
+    );
+    expect(onChainAccessAccount.resourceKey).equals(resourceKey);
+    expect(onChainAccessAccount.numOfDaysValid).equals(2);
   });
 });
 
