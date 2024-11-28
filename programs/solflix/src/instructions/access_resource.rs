@@ -40,8 +40,11 @@ impl<'info> AccessResource<'info> {
             to: self.maker.to_account_info(),
         };
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts);
-        let platform_charges = self.resource_account.price.checked_mul(self.config.charge_percentage as u64 / 100).unwrap();
+        let mut platform_charges = self.resource_account.price.checked_mul(self.config.charge_percentage as u64).unwrap();
+        platform_charges = platform_charges.checked_div(100).unwrap();
         let transfer_amount_to_creator = self.resource_account.price.checked_sub(platform_charges).unwrap();
+        msg!("{}", platform_charges);
+        msg!("{}", transfer_amount_to_creator);
         transfer(cpi_context, transfer_amount_to_creator)?;
 
         // Transfer to platform

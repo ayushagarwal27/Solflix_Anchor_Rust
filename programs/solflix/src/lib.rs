@@ -6,7 +6,6 @@ mod state;
 mod instructions;
 mod error;
 
-
 use instructions::*;
 
 #[program]
@@ -18,8 +17,8 @@ pub mod solflix {
         Ok(())
     }
 
-    pub fn create_resource(ctx: Context<CreateResource>, price: u64, num_of_days: u32, resource_key: String, seed: String) -> Result<()> {
-        ctx.accounts.create_resource(price, num_of_days, resource_key, seed, &ctx.bumps)?;
+    pub fn create_resource(ctx: Context<CreateResource>, price: u64, num_of_days: u32, resource_key: String, title: String, description: String, seed: String) -> Result<()> {
+        ctx.accounts.create_resource(price, num_of_days, resource_key, title, description, seed, &ctx.bumps)?;
         Ok(())
     }
 
