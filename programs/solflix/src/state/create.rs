@@ -11,4 +11,8 @@ pub struct Create {
     pub seed: String,
     #[max_len(50)]
     pub resource_key: String,
+    #[max_len(50)]
+    pub title: String,
+    #[max_len(200)]
+    pub description: String,
 }
