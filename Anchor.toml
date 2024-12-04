@@ -4,6 +4,9 @@
 resolution = true
 skip-lint = false
 
+[programs.devnet]
+solflix = "BFpFTmDwDNygSW9iL1UErkpDGTDiJFcjZh73DJ1vRu47"
+
 [programs.localnet]
 solflix = "BFpFTmDwDNygSW9iL1UErkpDGTDiJFcjZh73DJ1vRu47"
 
