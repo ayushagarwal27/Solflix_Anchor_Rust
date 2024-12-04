@@ -23,7 +23,7 @@ and data storage
 
 - Here we create `config` pda, which stores
 
-  ```rust
+```rust
 pub struct Config {
     pub admin: Pubkey,
     pub charge_percentage: u8,
